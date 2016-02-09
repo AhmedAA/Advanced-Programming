@@ -29,6 +29,28 @@
 // always compile and run after you are done with each exercise (if you do them
 // in order).  Please compile and test frequently.
 
+//Exercise 1: The answer is case Cons(x, Cons(y, Cons(3, Cons(4, _)))) => x + y
+// because x (which does not have anything to do with the "original" x, but is a "wildcard"
+// y is another "wildcard", and x,y,3,4,_ matches the list. And since the case is before _, the _ does NOT win.
+
+//For testing
+object Test extends App {
+  //Exercise 1
+  val x = List(1,2,3,4,5) match {
+    case Cons(x, Cons(2, Cons(4, _))) => x
+    case Nil => 42
+    case Cons(x, Cons(y, Cons(3, Cons(4, _)))) => x + y
+    case Cons(h, t) => h
+    case _ => 101
+  }
+
+  println(x)
+
+  //Exercise 6
+  println(List.init(List(1,2,3,4)))
+}
+
+
 // An ADT of Lists
 
 sealed trait List[+A]
@@ -46,23 +68,54 @@ object List {
 
   // Exercise 2
 
-  // def tail[A] (as: List[A]) :List[A] = ...
+  def tail[A] (as: List[A]) :List[A] = as match {
+    case Cons(x,xs) => xs
+    case _ => Nil
+  }
 
   // Exercise 3
 
-  // def setHead[A] (as: List[A], newHead: A) : List[A] = ...
+  def setHead[A] (as: List[A], newHead: A) : List[A] = as match {
+    case Cons(x,xs) => Cons(newHead,xs)
+    case _ => Nil
+  }
 
   // Exercise 4
 
-  // def drop[A] (l: List[A], n: Int) : List[A] = ...
+  def drop[A] (l: List[A], n: Int) : List[A] = l match {
+    case Cons(x,xs) => {
+      if (n > 0)
+        drop(xs,n-1)
+      else
+        xs
+    }
+    case _ => {
+      if (n > 0)
+        Nil
+      else
+        l
+    }
+  }
 
   // Exercise 5
 
-  // def dropWhile[A](l: List[A], f: A => Boolean): List[A] = ...
+  def dropWhile[A](l: List[A], f: A => Boolean): List[A] = l match {
+    case Cons(x,xs) => {
+      if (f(x))
+        dropWhile(xs,f)
+      else
+        Cons(x,dropWhile(xs,f))
+    }
+    case _ => l
+  }
 
   // Exercise 6
-
-  // def init[A](l: List[A]): List[A] = ...
+  //Linear time linear space
+  def init[A](l: List[A]): List[A] = l match {
+    case Cons(x,Nil) => Nil
+    case Cons(x,xs) => Cons(x,init(xs))
+    case _ => l
+  }
 
   // Exercise 7 is in the bottom of the file
 
