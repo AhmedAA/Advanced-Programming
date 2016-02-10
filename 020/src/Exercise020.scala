@@ -1,7 +1,7 @@
 // Advanced Programming, Exercises by A. WÄ…sowski, IT University of Copenhagen
 //
-// AUTHOR1:
-// AUTHOR2:
+// AUTHOR1: sdeh@itu.dk
+// AUTHOR2: ahaq@itu.dk
 //
 // Write names and ITU email addresses of both group members that contributed to
 // the solution of the exercise (in alphabetical order by family name).
@@ -204,11 +204,27 @@ object Exercise7 {
 
   case class SalaryLine(name: String, amount: Integer)
 
-  // def maximumSalary (salaries: List[SalaryLine]) :Integer = ...
+  def maximumSalary (salaries: List[SalaryLine]) :Integer = salaries match {
+    case Cons(x, Nil) => x.amount
+    case Cons(x, xs) => if (x.amount > maximumSalary(xs)) x.amount
+                        else maximumSalary(List.drop(salaries, 0))
+    case Nil => -1
+    }
 
   val test_case = List( SalaryLine("John",41),
-    SalaryLine("Alice", 42),
-    SalaryLine("Bob",40))
+                        SalaryLine("Alice", 42),
+                        SalaryLine("Bob",40))
 
+  val test_case1 = List(SalaryLine("John",1),
+                        SalaryLine("Alice", 2),
+                        SalaryLine("Bob",3))
+
+  val test_case2 = List(SalaryLine("John",3),
+                        SalaryLine("Alice", 2),
+                        SalaryLine("Bob",1))
+
+  val test_case3 = List(SalaryLine("John",1))
+
+  val test_case4 = List(SalaryLine("",0))
 }
 
