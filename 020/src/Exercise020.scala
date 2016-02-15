@@ -126,7 +126,11 @@ object List {
     case Cons (x,xs) => f (x, foldRight (xs,z) (f))
   }
 
-  // def length[A] (as: List[A]): Int = ...
+  def length[A] (as: List[A]): Int = {
+    def _length(xs: List[X], acc: Int): Int = as match{
+      case Cons(x, xs) => _length()
+    }
+  }
 
   // Exercise 9
 
