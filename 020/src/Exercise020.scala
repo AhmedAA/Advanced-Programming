@@ -1,3 +1,5 @@
+import scala.annotation.tailrec
+
 // Advanced Programming, Exercises by A. WÄ…sowski, IT University of Copenhagen
 //
 // AUTHOR1: sdeh@itu.dk
@@ -48,6 +50,53 @@ object Test extends App {
 
   //Exercise 6
   println(List.init(List(1,2,3,4)))
+
+  //Exercise 8
+  println(List.length(List(1,2,3,4)))
+
+  //Exercise 9
+  println(List.foldLeft(List(1,2,3,4),0)((item,acc) => acc+1))
+
+  //Exercise 11
+  println(List(1,2,3,4))
+  println(List.reverse(List(1,2,3,4)))
+
+  //Exercise 12
+  println(List.foldRight1(List(1.0,2.0,3.0,4.0),1.0)((item, acc) => item/acc))
+  println(List.foldRight(List(1.0,2.0,3.0,4.0),1.0)((item, acc) => item/acc))
+
+  //println(List.foldLeft1(List(1.0,2.0,3.0,4.0),1.0)((item, acc) => item/acc))
+  //println(List.foldLeft(List(1.0,2.0,3.0,4.0),1.0)((item, acc) => item/acc))
+
+  //Exercise 13
+  println(List.concat(List(List(1,2),List(3,4), List(4,5))))
+
+  //Exercise 14
+  println(List.map(List(1,2,3,4))(x => x*2.0))
+
+  //Exercise 16
+  println(List.filter(List(1,2,3,4,3,2,1,1,2,3,4)) (x => x>2))
+
+  //Exercise 17
+  println(List.flatMap(List(1,2,3,4,5)) (x => List(x,x,x)))
+
+  //Exercise 19
+  println(List.add(List(1,2,3)) (List(4,5,6,7)))
+
+  //Exercise 21
+  println(List.hasSubsequence(List(1,2,3,4,5,6,7,8,9,10), List(1,2,3)))
+  println(List.hasSubsequence(List(1,2,5,5,5,5,7,8,9,10), List(5,5,7)))
+  println(List.hasSubsequence(List(1,2,3,4,5,6,7,8,9,10), List(1,3)))
+  println(List.hasSubsequence(List(1,2,3,4,5,6,7,8,9,10), List(5,6,7)))
+  println(List.hasSubsequence(List(1,2,3,4,5,6,7,8,9,10), List(8,9,10)))
+  println(List.hasSubsequence(List(1,2,3,4,5,6,7,8,9,10), Nil))
+
+  //Exercise 23
+  println(List.pascal(1))
+  println(List.pascal(2))
+  println(List.pascal(3))
+  println(List.pascal(4))
+  println(List.pascal(5))
 }
 
 
@@ -127,30 +176,36 @@ object List {
   }
 
   def length[A] (as: List[A]): Int = {
-    def _length(xs: List[X], acc: Int): Int = as match{
-      case Cons(x, xs) => _length()
-    }
+    foldRight(as,0)((item,acc) => acc+1)
   }
 
-  // Exercise 9
-
-  // def foldLeft[A,B] (as: List[A], z: B) (f: (B, A) => B) : B = ...
+  // Exercise 9 NOTE: We fixed f: B, A => B to A, B => B
+  @tailrec
+  def foldLeft[A,B] (as: List[A], z: B) (f: (A, B) => B) : B = as match {
+    case Cons(x,xs) => foldLeft(xs, f(x, z)) (f)
+    case _ => z
+  }
 
   // Exercise 10
 
-  // def sum (as : List[Int]) : Int = ...
-  // def product (as :List[Int]) : Int = ...
-  // def length1 (as :List[Int]) : Int = ...
+  def sum (as : List[Int]) : Int = foldLeft(as, 0) ((item, acc) => item + acc)
+  def product (as :List[Int]) : Int = foldLeft(as, 1) ((item, acc) => item * acc)
+  def length1 (as :List[Int]) : Int = foldLeft(as,0)((item,acc) => acc+1)
 
   // Exercise 11
 
-  // def reverse[A] (as :List[A]) :List[A] = ...
+  def reverse[A] (as :List[A]) :List[A] = as match {
+    case Cons(x,xs) => foldLeft(xs,List(x))((item, newList) => Cons(item, newList))
+    case _ => as
+  }
 
   // Exercise 12
+  def foldRight1[A,B] (as: List[A], z: B) (f: (A, B) => B) : B = foldLeft(reverse(as),z) (f)
 
-  // def foldRight1[A,B] (as: List[A], z: B) (f: (A, B) => B) : B = ...
-
-  // def foldLeft1[A,B] (as: List[A], z: B) (f: (B,A) => B) : B = ...
+  //NOTE: We fixed f: B, A => B to A, B => B
+  def foldLeft1[A,B] (as: List[A], z: B) (f: (A, B) => B) : B = {
+   throw new NotImplementedError("TODO ")  //TODO NOT WORKING ATM 12
+  }
 
   // Exercise 13
 
@@ -159,41 +214,109 @@ object List {
     case Cons(h,t) => Cons(h, append(t, a2))
   }
 
-  // def concat[A] (as: List[List[A]]) :List[A] = ..
+  def concat[A] (as: List[List[A]]) :List[A] = as match {
+    case Cons(x, Nil) => x
+    case Cons(x, xs) => append(x,concat(xs))
+    case _ => Nil
+  }
 
   // Exercise 14
+  // The implementation in the lecture is using foldRight, foldRight is not tail recursive
+  def map[A,B] (a :List[A]) (f :A => B) :List[B] = {
+    def helpMap (in: List[A]) :List[B] = in match {
+        case Cons(x,Nil) => List(f(x))
+        case Cons(x,xs) => foldLeft(xs,List(f(x)))((item, acc) => Cons(f(item), acc))
+        case _ => Nil
+      }
 
-  // def map[A,B] (a :List[A]) (f :A => B) :List[B] = ...
+    helpMap(List.reverse(a))
+  }
 
   // Exercise 15 (no coding)
+  // Because the results would be "reversed" if we had used foldLeft without reversing first.
 
   // Exercise 16
 
-  // def filter[A] (as: List[A]) (f: A => Boolean) : List[A] = ...
+  def filter[A] (as: List[A]) (f: A => Boolean) : List[A] = as match {
+    case Cons(x,Nil) => if (f(x)) List(x) else Nil
+    case Cons(x,xs) => if (f(x)) Cons(x,filter(xs) (f)) else filter(xs) (f)
+    case _ => Nil
+  }
 
   // Exercise 17
 
-  // def flatMap[A,B](as: List[A])(f: A => List[B]) : List[B] = ...
+  def flatMap[A,B](as: List[A])(f: A => List[B]) : List[B] = as match {
+    case Cons(x,Nil) => f(x)
+    case Cons(x,xs) => List.concat(List(f(x),flatMap(xs)(f)))
+    case _ => Nil
+  }
 
   // Exercise 18
 
-  // def filter1[A] (l: List[A]) (p: A => Boolean) :List[A] = ...
+  //TODO 18 def filter1[A] (l: List[A]) (p: A => Boolean) :List[A] =
 
   // Exercise 19
-
-  // def add (l: List[Int]) (r: List[Int]): List[Int] = ...
+  def add (l: List[Int]) (r: List[Int]): List[Int] = l match {
+    case Cons(l, ls) => r match {
+      case Cons(r, rs) => Cons(l+r, add(ls) (rs))
+      case _ => Nil
+    }
+    case _ => Nil
+  }
 
   // Exercise 20
 
-  // def zipWith[A,B,C] (f : (A,B)=>C) (l: List[A], r: List[B]) : List[C] = ...
+  def zipWith[A,B,C] (f : (A,B)=>C) (l: List[A], r: List[B]) : List[C] = l match {
+    case Cons(l, ls) => r match {
+      case Cons(r, rs) => Cons(f(l,r), zipWith(f) (ls,rs))
+      case _ => Nil
+    }
+    case _ => Nil
+  }
 
   // Exercise 21
 
-  // def hasSubsequence[A] (sup: List[A], sub: List[A]) :Boolean = ...
+  def hasSubsequence[A] (sup: List[A], sub: List[A]) :Boolean = {
+
+    def hasSubHelper [A] (supH: List[A], subH: List[A],  startSub: List[A]) :Boolean = supH match {
+      case Cons(x,xs) => subH match {
+        case Cons(subx, subxs) => {
+          if (subx == x)
+            hasSubHelper(xs, subxs, startSub)
+          else
+            hasSubHelper(xs, startSub, startSub)
+        }
+        case _ => true
+      }
+      case _ => if (subH == Nil) true else false
+    }
+
+    if (hasSubHelper(sup, sub, sub))
+      true
+    else sup match {
+      case Cons(x,xs) => hasSubsequence(xs, sub)
+      case _ => false
+    }
+  }
 
   // Exercise 22
+  //TODO PASCAL NOT WORKING
+  def pascal (n :Int) : List[Int] = {
+    def pascHelp(in: List[Int]): List[Int] = in match {
+      case Cons(x1,Cons(x2,xs)) => Cons(x1+x2, pascHelp(Cons(x2,xs)))
+      case Cons(x, xs) => List(x)
+      case _ => Nil
+    }
 
-  // def pascal (n :Int) : List[Int] = ...
+    def pascHelpPt2 (cur: Int, max: Int, lastList: List[Int]): List[Int] = {
+      if (cur < max)
+        pascHelpPt2(cur + 1, max, pascHelp(lastList))
+      else
+        lastList
+    }
+
+    pascHelpPt2(1, n, List(1))
+  }
 
   // a test: pascal (4) = Cons(1,Cons(3,Cons(3,Cons(1,Nil))))
 
