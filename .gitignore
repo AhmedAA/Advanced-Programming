@@ -1,7 +1,6 @@
 *.class
 *.log
 *.pdf
-src/
 
 # sbt specific
 .cache
