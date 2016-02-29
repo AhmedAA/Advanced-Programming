@@ -9,6 +9,48 @@ import Stream._
 
 sealed trait Stream[+A] {
 
+  //Exercise 2
+  def toList :List[A] = this match {
+    case Empty => Nil
+    case Cons(h, t) => h()::t().toList
+  }
+
+  //Exercise 3
+  def take (n :Int) :Stream[A] = {
+    if (n > 0)
+      this match {
+        case Empty => Empty
+        case Cons(h, t) => Cons(h, () => t().take(n-1))
+      }
+    else
+      Empty
+  }
+
+  def drop (n :Int) :Stream[A] = {
+    if (n > 0)
+      this match {
+        case Empty => Empty
+        case Cons(h,t) => t().drop(n-1)
+      }
+    else
+      this
+  }
+
+  //Exercise 4
+  def takeWhile(p: A => Boolean): Stream[A] = this match {
+    case Empty => Empty
+    case Cons(h, t) => if (p(h())) Cons(h, () => t().takeWhile(p)) else Empty
+  }
+
+  //Exercise 5
+  def forAll(p: A => Boolean): Boolean = this match {
+    case Empty => true
+    case Cons(h, t) => if (p(h())) t().forAll(p) else false
+  }
+
+  //Exercise 6 //TODO Her nåede jeg til (Se test case i Main.Scala)
+  //def takeWhile1(p: A => Boolean): Stream[A] = foldRight(Empty)((cur,acc) => )
+
   def headOption () :Option[A] =
     this match {
       case Empty => None
