@@ -253,7 +253,9 @@ object List {
 
   // Exercise 18
 
-  //TODO 18 def filter1[A] (l: List[A]) (p: A => Boolean) :List[A] =
+  def filter1[A] (l: List[A]) (p: A => Boolean) :List[A] = {
+    flatMap(l) (x => if(p(x)) List(x) else Nil)
+  }
 
   // Exercise 19
   def add (l: List[Int]) (r: List[Int]): List[Int] = l match {
@@ -300,23 +302,16 @@ object List {
   }
 
   // Exercise 22
-  //TODO PASCAL NOT WORKING
-  def pascal (n :Int) : List[Int] = {
-    def pascHelp(in: List[Int]): List[Int] = in match {
-      case Cons(x1,Cons(x2,xs)) => Cons(x1+x2, pascHelp(Cons(x2,xs)))
-      case Cons(x, xs) => List(x)
-      case _ => Nil
-    }
-
-    def pascHelpPt2 (cur: Int, max: Int, lastList: List[Int]): List[Int] = {
-      if (cur < max)
-        pascHelpPt2(cur + 1, max, pascHelp(lastList))
-      else
-        lastList
-    }
-
-    pascHelpPt2(1, n, List(1))
-  }
+//  def factorial(n: Int): Int = {
+//    def _factorial(n: Int, acc: Int): Int = {
+//      if (n <= 0) acc else n * _factorial(n-1, acc)
+//    }
+//    _factorial(n, 0)
+//  }
+//
+//  def pascal (n :Int) : List[Int] = {
+//    List(factorial(n))
+//    }
 
   // a test: pascal (4) = Cons(1,Cons(3,Cons(3,Cons(1,Nil))))
 
