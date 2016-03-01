@@ -64,6 +64,13 @@ object Main extends App {
   assert(to(100).headOption1() == Some(0))
   assert(to(100).take(50).drop(10).headOption1() == Some(10))
 
-  //Exercise 8 test
+  //Exercise 8.1 test
   from(0).map(_*2).drop(30).take(50).toList
+  //Exercise 8.2 test
+  from(0).drop(42).filter (_%2 ==0).take (30).toList
+  //Exercise 8.3 test
+  Stream.append(from(0), from(0))
+  Stream.append(from(0).take(10), from(0)).take(20).toList
+  //Exercise 8.4 test
+  println(from(0).flatMap(to _).take (100).toList)
 }

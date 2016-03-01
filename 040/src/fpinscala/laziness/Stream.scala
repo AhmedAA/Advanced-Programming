@@ -9,8 +9,6 @@
 
 package fpinscala.laziness
 
-import Stream._
-
 sealed trait Stream[+A] {
 
   //Exercise 2
@@ -64,11 +62,33 @@ sealed trait Stream[+A] {
     case _ => Some(cur)
   })
 
-  //Exercise 8
+  //Exercise 8.1
   def map[B] (f: (A => B)): Stream[B] = this match {
     case Empty => Empty
     case Cons(h, t) => Cons(() => f(h()), () => t().map(f))
   }
+
+  //Exercise 8.2
+  def filter (f: A=> Boolean): Stream[A] = this match {
+    case Empty => Empty
+    case Cons(h, t) => if (f(h())) Cons(h, () => t().filter(f)) else t().filter(f)
+  }
+
+  //Exercise 8.3 See Stream object
+
+  //Exercise 8.4 TODO Broken as fuck does not work... Using simple append causes memory overflow
+  /*def flatMap[B] (f: A=>Stream[B]): Stream[B] = this match {
+    case Empty => Empty
+    case Cons(h, t) => {
+
+      def flatHelp(one: Stream[B], other: ()=>Stream[B]): Stream[B] = one match {
+        case Empty => Empty
+        case Cons(fh, ft) => Cons(fh, () => flatHelp(ft(), other))
+      }
+
+      flatHelp(f(h()), () => t().flatMap(f))
+    }
+  }*/
 
   def headOption () :Option[A] = this match {
     case Empty => None
@@ -132,6 +152,12 @@ object Stream {
   // Note 1: ":_*" tells Scala to treat a list as multiple params
   // Note 2: pattern matching with :: does not seem to work with Seq, so we
   //         use a generic function API of Seq
+
+  //Exercise 8.3
+  def append[A] (one: Stream[A], other: Stream[A]): Stream[A] = one match {
+    case Empty => other
+    case Cons(h, t) => Cons(h, () => Stream.append(t(), other))
+  }
 }
 
 // vim:tw=0:cc=80:nowrap
