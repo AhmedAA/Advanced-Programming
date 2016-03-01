@@ -1,11 +1,16 @@
 // Advanced Programming 2015
-// Andrzej Wąsowski, IT University of Copenhagen
+// IT University of Copenhagen
+//
+// Group 32
+// SDEH
+// AHAQ
 //
 // A script meant to be loaded into REPL (scala -i Main.scala)
 
 import fpinscala.laziness._
 import fpinscala.laziness.Stream._
 
+//noinspection OptionEqualsSome,EmptyParenMethodAccessedAsParameterless
 object Main extends App {
   // this is how we do simple interactive testing
 
@@ -50,6 +55,15 @@ object Main extends App {
   //from(0).forAll (_ >=0) //This call is uncommented since it (correctly) throws a StackOverflowError
   //Because they can cause an out of memory exception to be thrown if the predicate computes for a long time (~infinite)
 
+  //Exercise 6 test
+  assert(from(0).takeWhile1(_<1000000000).drop(100).take(50).toList == from(100).take(50).toList)
 
+  //Exercise 7 test
+  assert(from(0).headOption1() == Some(0))
+  assert(from(10).headOption1() == Some(10))
+  assert(to(100).headOption1() == Some(0))
+  assert(to(100).take(50).drop(10).headOption1() == Some(10))
 
+  //Exercise 8 test
+  from(0).map(_*2).drop(30).take(50).toList
 }

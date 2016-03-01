@@ -1,5 +1,9 @@
 // Advanced Programming 2015
-// Andrzej Wąsowski, IT University of Copenhagen
+// IT University of Copenhagen
+//
+// Group 32
+// SDEH
+// AHAQ
 //
 // meant to be compiled, for example: fsc Stream.scala
 
@@ -48,14 +52,28 @@ sealed trait Stream[+A] {
     case Cons(h, t) => if (p(h())) t().forAll(p) else false
   }
 
-  //Exercise 6 //TODO Her nåede jeg til (Se test case i Main.Scala)
-  //def takeWhile1(p: A => Boolean): Stream[A] = foldRight(Empty)((cur,acc) => )
+  //Exercise 6
+  def takeWhile1(p: A => Boolean): Stream[A] = foldRight(Empty:Stream[A]) ((cur, acc) => this match {
+    case Empty => acc
+    case _ => if (p(cur)) Cons(() => cur, () => acc) else acc
+  })
 
-  def headOption () :Option[A] =
-    this match {
-      case Empty => None
-      case Cons(h,t) => Some(h())
-    }
+  //Exercise 7
+  def headOption1(): Option[A] = foldRight(None:Option[A]) ((cur, acc) => this match {
+    case Empty => acc
+    case _ => Some(cur)
+  })
+
+  //Exercise 8
+  def map[B] (f: (A => B)): Stream[B] = this match {
+    case Empty => Empty
+    case Cons(h, t) => Cons(() => f(h()), () => t().map(f))
+  }
+
+  def headOption () :Option[A] = this match {
+    case Empty => None
+    case Cons(h,t) => Some(h())
+  }
 
   def tail :Stream[A] = this match {
     case Empty => Empty
