@@ -9,6 +9,7 @@
 
 package fpinscala.laziness
 
+import Stream._
 sealed trait Stream[+A] {
 
   //Exercise 2
@@ -21,8 +22,8 @@ sealed trait Stream[+A] {
   def take (n :Int) :Stream[A] = {
     if (n > 0)
       this match {
-        case Empty => Empty
-        case Cons(h, t) => Cons(h, () => t().take(n-1))
+        case Empty => empty
+        case Cons(h, t) => cons(h(), t().take(n-1))
       }
     else
       Empty
@@ -31,7 +32,7 @@ sealed trait Stream[+A] {
   def drop (n :Int) :Stream[A] = {
     if (n > 0)
       this match {
-        case Empty => Empty
+        case Empty => empty
         case Cons(h,t) => t().drop(n-1)
       }
     else
@@ -40,8 +41,8 @@ sealed trait Stream[+A] {
 
   //Exercise 4
   def takeWhile(p: A => Boolean): Stream[A] = this match {
-    case Empty => Empty
-    case Cons(h, t) => if (p(h())) Cons(h, () => t().takeWhile(p)) else Empty
+    case Empty => empty
+    case Cons(h, t) => if (p(h())) cons(h(), t().takeWhile(p)) else empty
   }
 
   //Exercise 5
@@ -51,9 +52,9 @@ sealed trait Stream[+A] {
   }
 
   //Exercise 6
-  def takeWhile1(p: A => Boolean): Stream[A] = foldRight(Empty:Stream[A]) ((cur, acc) => this match {
+  def takeWhile1(p: A => Boolean): Stream[A] = foldRight(empty:Stream[A]) ((cur, acc) => this match {
     case Empty => acc
-    case _ => if (p(cur)) Cons(() => cur, () => acc) else acc
+    case _ => if (p(cur)) cons(cur, acc) else acc
   })
 
   //Exercise 7
@@ -64,31 +65,74 @@ sealed trait Stream[+A] {
 
   //Exercise 8.1
   def map[B] (f: (A => B)): Stream[B] = this match {
-    case Empty => Empty
-    case Cons(h, t) => Cons(() => f(h()), () => t().map(f))
+    case Empty => empty
+    case Cons(h, t) => cons(f(h()), t().map(f))
   }
 
   //Exercise 8.2
   def filter (f: A=> Boolean): Stream[A] = this match {
-    case Empty => Empty
-    case Cons(h, t) => if (f(h())) Cons(h, () => t().filter(f)) else t().filter(f)
+    case Empty => empty
+    case Cons(h, t) => if (f(h())) cons(h(), t().filter(f)) else t().filter(f)
   }
 
-  //Exercise 8.3 See Stream object
+  //Exercise 8.3
+  def append[B>:A](s: => Stream[B]): Stream[B] =
+    foldRight(s)((h,t) => cons(h,t))
 
-  //Exercise 8.4 TODO Broken as fuck does not work... Using simple append causes memory overflow
-  /*def flatMap[B] (f: A=>Stream[B]): Stream[B] = this match {
-    case Empty => Empty
-    case Cons(h, t) => {
+  //Exercise 8.4
+  def flatMap[B] (f: A=>Stream[B]): Stream[B] = foldRight(empty[B])((h,t) => (f(h)).append(t))
 
-      def flatHelp(one: Stream[B], other: ()=>Stream[B]): Stream[B] = one match {
-        case Empty => Empty
-        case Cons(fh, ft) => Cons(fh, () => flatHelp(ft(), other))
-      }
+  //Exercise 9
+  //Explanation:
+  //It is efficient for a stream because basically the only items that are filtered are the ones before and up until the
+  //matching element. In a list the corresponding would be very
 
-      flatHelp(f(h()), () => t().flatMap(f))
+  //Exercise 13
+  def mapByUnfold[B] (f: (A => B)): Stream[B] = unfold(this) {
+    case Cons(h, t) => Some(f(h()), t())
+    case Empty => None
+  }
+
+  def takeByUnfold(n :Int) :Stream[A] = unfold((n,this)) (s => if (s._1>0) s._2 match {
+    case Cons(h, t) => Some(h(), (s._1-1,t()))
+    case Empty => None
+  } else None)
+
+  def takeWhileByUnfold(p: A => Boolean): Stream[A] = unfold(this) {
+    case Cons(h, t) => if (p(h())) Some(h(), t()) else None
+    case Empty => None
+  }
+
+  //TODO Not sure if this implementation is correct?
+  def zipWithByUnfold[B,C](s2: Stream[B])(f: (A,B) => C): Stream[C] =
+  unfold((this,s2)) (s => s._1 match {
+    case Cons(h, t) => s._2 match {
+      case Cons(h2, t2) => Some(f(h(),h2()), (t(), t2()))
+      case Empty => None
     }
-  }*/
+    case Empty => None
+  })
+
+  //def zipAllByUnfold //TODO: We did not understand this function...
+
+  //Exercise 14
+  def startsWith[B>:A](that: Stream[B]): Boolean = {
+    def startsWithHelp(fst: Stream[A], snd: Stream[B]): Boolean = fst match {
+      case Cons(h, t) => snd match {
+        case Cons(h2, t2) => if (h()==h2()) startsWithHelp(t(), t2()) else false
+        case Empty => true
+      }
+      case Empty => snd == empty
+    }
+
+    startsWithHelp(this, that)
+  }
+
+  //Exercise 15
+  def tails: Stream[Stream[A]] = this match {
+    case Cons(h, t) => cons(this, t().tails)
+    case Empty => empty
+  }
 
   def headOption () :Option[A] = this match {
     case Empty => None
@@ -140,24 +184,46 @@ object Stream {
 
   def empty[A]: Stream[A] = Empty
 
-  def cons[A] (hd: => A, tl: => Stream[A]) :Stream[A] = {
+  def cons[A](hd: => A, tl: => Stream[A]): Stream[A] = {
     lazy val head = hd
     lazy val tail = tl
     Cons(() => head, () => tail)
   }
 
-  def apply[A] (as: A*) :Stream[A] =
+  def apply[A](as: A*): Stream[A] =
     if (as.isEmpty) empty
     else cons(as.head, apply(as.tail: _*))
+
   // Note 1: ":_*" tells Scala to treat a list as multiple params
   // Note 2: pattern matching with :: does not seem to work with Seq, so we
   //         use a generic function API of Seq
 
-  //Exercise 8.3
-  def append[A] (one: Stream[A], other: Stream[A]): Stream[A] = one match {
-    case Empty => other
-    case Cons(h, t) => Cons(h, () => Stream.append(t(), other))
+  //Exercise 1
+  def to(n: Int): Stream[Int] = {
+    def help(cur: Int, max: Int): Stream[Int] = {
+      if (cur <= max)
+        cons(cur, help(cur + 1, max))
+      else
+        empty
+    }
+    help(0, n)
   }
-}
 
+  def from(n: Int): Stream[Int] = cons(n, from(n + 1))
+
+  def naturals = from(0)
+
+  //Exercise 10
+  def fibs: Stream[Int] = {
+    def f(fst: Int, snd: Int): Stream[Int] = cons(fst, f(snd, fst + snd))
+    f(0, 1)
+  }
+
+  //Exercise 11
+  def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = f(z).fold(empty: Stream[A])({ case (a, s) => cons(a, unfold(s)(f)) })
+
+  //Exercise 12
+  def from1(n: Int): Stream[Int] = unfold(n)(s => Some(s, s + 1))
+  def fibs1: Stream[Int] = unfold((0, 1))(s => Some(s._1, (s._2,s._1+s._2)))
+}
 // vim:tw=0:cc=80:nowrap
