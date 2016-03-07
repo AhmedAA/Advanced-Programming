@@ -76,6 +76,7 @@ object Main extends App {
   assert(naturals.drop(5).takeByUnfold(5).toList == naturals.drop(5).take(5).toList)
   assert(naturals.takeWhileByUnfold(_ < 1000000000).drop(100).take(50).toList == naturals.takeWhile(_ < 1000000000).drop(100).take(50).toList)
   naturals.zipWithByUnfold(naturals)((a, b) => a + b).take(10).toList
+  println(naturals.zipAllByUnfold(naturals)((a, b) => a + b).take(10).toList)
 
   //Exercise 14 test
   // naturals.startsWith (naturals) <-- Will never terminate because they are both infinite and the same so the
