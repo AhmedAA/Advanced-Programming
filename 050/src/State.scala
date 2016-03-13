@@ -4,13 +4,20 @@
 import RNG.Simple
 
 import scala.annotation.tailrec
+import scala.collection.immutable.Stream.Empty
 
 //Tests
 object test extends App {
-  println(RNG.nonNegativeInt(new Simple(2))._1)
-  println(RNG.double(new Simple(1900000000))._1)
-  println(RNG.ints(10)(new Simple(2))._1)
-  println(RNG._double(new Simple(1900000000))._1)
+  println(RNG.nonNegativeInt(Simple(2))._1)
+  println(RNG.double(Simple(1900000000))._1)
+  println(RNG.ints(10)(Simple(2))._1)
+  println(RNG._double(Simple(1900000000))._1)
+  println(RNG.nonNegativeLessThan(4)(Simple(1900000000))._1)
+  println(State.random_int.run(Simple(42)))
+  println(State.random_int.run(Simple(42)))
+  println("Pre list")
+  State.state2stream(State.random_int)(Simple(42)).take(5).toList.foreach(println)
+  println("Post list")
 }
 
 
@@ -97,11 +104,10 @@ object RNG {
   def unit[A](a: A): Rand[A] =
     rng => (a, rng)
 
-  def map[A,B](s: Rand[A])(f: A => B): Rand[B] =
-    rng => {
-      val (a, rng2) = s(rng)
-      (f(a), rng2)
-    }
+  def map[A,B](s: Rand[A])(f: A => B): Rand[B] = rng => {
+    val (a, rng2) = s(rng)
+    (f(a), rng2)
+  }
 
   // def nonNegativeEven: Rand[Int] = map(nonNegativeInt)(i => i - i % 2)
 
@@ -139,7 +145,7 @@ object RNG {
     g(fr._1)(fr._2)
   }
 
-  // def nonNegativeLessThan(n: Int): Rand[Int] = { ...
+  def nonNegativeLessThan(n: Int): Rand[Int] = flatMap(nonNegativeInt)(x => unit(x % n))
 
   // Exercise 9 (6.9)
 
@@ -154,11 +160,14 @@ case class State[S, +A](run: S => (A, S)) {
 
   // Exercise 10 (6.10)
 
-  // def map[B](f: A => B): State[S, B] = ...
+  def map[B](f: A => B): State[S, B] = flatMap(a => unit(f(a)))
 
-  // def map2[B,C](sb: State[S, B])(f: (A, B) => C): State[S, C] = ...
+  def map2[B,C](sb: State[S, B])(f: (A, B) => C): State[S, C] = flatMap(a => sb.map(b => f(a,b)))
 
-  // def flatMap[B](f: A => State[S, B]): State[S, B] = State(s => { ...
+  def flatMap[B](f: A => State[S, B]): State[S, B] = State(s => {
+    val fs = run(s)
+    f(fs._1).run(fs._2)
+  })
 
 }
 
@@ -169,7 +178,7 @@ object State {
     State(s => (a, s))
 
   // Exercise 10 (6.10) continued
-
+  // TODO No fucking idea
   // def sequence[S,A](sas: List[State[S, A]]): State[S, List[A]] = ...
   //
   // This is given in the book:
@@ -188,7 +197,10 @@ object State {
 
   // Exercise 11
 
-  // def state2stream[S,A] (s :State[S,A]) (seed :S) :Stream[A] = ...
+  def state2stream[S,A] (s :State[S,A]) (seed :S) :Stream[A] = {
+    val (x,y) = s.run(seed)
+    Stream.cons(x, state2stream(s)(y))
+  }
 
   // Exercise 12
 
