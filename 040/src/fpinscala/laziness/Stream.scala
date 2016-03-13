@@ -113,13 +113,16 @@ sealed trait Stream[+A] {
     case Empty => None
   })
 
-  def zipAllByUnfold[B](s2: Stream[B]): Stream[(Option[A],Option[B])] =
-  unfold((this,s2)) (s => s match {
-    case (Cons(h, t), Cons(h1, t1)) => Some((h(), h1()), t(), t1())
-    case (Cons(h, t), Empty) => Some((h(), None), t())
-    case (Empty, Cons(h, t)) => Some(None, h())
-    case _ => None
-  })
+//  def zipAllByUnfold[B](s2: Stream[B]): Stream[(Option[A],Option[B])] = {
+//    unfold((this, s2)) ((s) => if (s._1.headOption() == None && s._2.headOption() == None) None else Some(
+//                          cons((s._1.headOption(), s._2.headOption()), (s._1.tails, s._2.tails))
+//                        ))}
+
+//  unfold((this,s2)) (s => s match {
+//                       case (Cons(h, t), Cons(h1, t1)) => Some((h(), h1()), t(), t1())
+//                       case (Cons(h, t), Empty) => Some((h(), None), t())
+//                       case (Empty, Cons(h, t)) => Some(None, h())
+//                       case _ => None
 
   //Exercise 14
   def startsWith[B>:A](that: Stream[B]): Boolean = {
