@@ -18,6 +18,7 @@ object test extends App {
   println("Pre list")
   State.state2stream(State.random_int)(Simple(42)).take(5).toList.foreach(println)
   println("Post list")
+  State.state2stream(State.random_int)(Simple(42)).take(10).toList.foreach(println)
 }
 
 
@@ -133,7 +134,7 @@ object RNG {
   // val randDoubleInt: Rand[(Double, Int)] = both(double, int)
 
   // Exercise 7 (6.7)
-  //TODO NO FUCKING IDEA
+  //TODO
   //def sequence[A](fs: List[Rand[A]]): Rand[List[A]] =
 
   // def _ints(count: Int): Rand[List[Int]] = ...
@@ -178,7 +179,7 @@ object State {
     State(s => (a, s))
 
   // Exercise 10 (6.10) continued
-  // TODO No fucking idea
+  // TODO
   // def sequence[S,A](sas: List[State[S, A]]): State[S, List[A]] = ...
   //
   // This is given in the book:
@@ -204,7 +205,7 @@ object State {
 
   // Exercise 12
 
-  // val random_integers = ...
+  val random_integers = state2stream(State.random_int)(Simple(42)).take(10).toList
 
 }
 
@@ -219,11 +220,23 @@ case object Turn extends Input
 
 case class Machine(locked: Boolean, candies: Int, coins: Int)
 
-object Candy {
+// Exercise 13 (CB 6.11)
+//object Candy {
+//  def update = (i: Input) => (s: Machine) =>
+//    (i, s) match {
+//      case (_, Machine(_, 0, _)) => s
+//      case (Coin, Machine(false, _, _)) => s
+//      case (Turn, Machine(true, _, _)) => s
+//      case (Coin, Machine(true, candy, coin)) =>
+//        Machine(false, candy, coin + 1)
+//      case (Turn, Machine(false, candy, coin)) =>
+//        Machine(true, candy - 1, coin)
+//    }
 
-  // Exercise 13 (CB 6.11)
-
-  // def simulateMachine(inputs: List[Input]): State[Machine, (Int, Int)] = ...
-}
+  //def simulateMachine(inputs: List[Input]): State[Machine, (Int, Int)] = for {
+  //  _ <- sequence(inputs map (modify[Machine] _ compose update))
+  //  s <- get
+  //} yield (s.coins, s.candies)
+//}
 
 // vim:cc=80:foldmethod=indent:foldenable
