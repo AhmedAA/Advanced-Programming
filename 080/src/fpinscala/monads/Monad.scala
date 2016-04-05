@@ -25,7 +25,9 @@ object Functor {
 
   // Exercise 12
 
-  // val OptionFunctor =
+  val OptionFunctor = new Functor[Option] {
+    def map[A, B](fa: Option[A])(f: (A) => B): Option[B] = fa.map(f)
+  }
 
 }
 
