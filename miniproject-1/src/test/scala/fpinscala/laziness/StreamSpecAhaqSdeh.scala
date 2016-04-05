@@ -1,5 +1,5 @@
 // Advanced Programming
-// Andrzej Wasowski, IT University of Copenhagen
+// Ahmed Al Aqtash (ahaq) and Sebastian Ehlers (sdeh), IT University of Copenhagen
 
 package fpinscala.laziness
 import scala.language.higherKinds
@@ -22,6 +22,8 @@ import stream00._    // uncomment to test the book solution
 class StreamSpecAhaqSdeh extends FlatSpec with Checkers {
 
   import Stream._
+
+  // --------------------------------------------------------------------------
 
   behavior of "headOption"
 
@@ -50,5 +52,7 @@ class StreamSpecAhaqSdeh extends FlatSpec with Checkers {
       Prop.forAll { (s :Stream[Int]) => s.headOption != None } )
 
   }
+
+  // --------------------------------------------------------------------------
 
 }
