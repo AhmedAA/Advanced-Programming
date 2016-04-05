@@ -19,7 +19,7 @@ import stream00._    // uncomment to test the book solution
 // import stream01._ // uncomment to test the broken headOption implementation
 // import stream02._ // uncomment to test another version that breaks headOption
 
-class StreamSpecWasowski extends FlatSpec with Checkers {
+class StreamSpecAhaqSdeh extends FlatSpec with Checkers {
 
   import Stream._
 
