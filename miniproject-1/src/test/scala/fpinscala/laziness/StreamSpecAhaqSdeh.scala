@@ -16,8 +16,8 @@ import Arbitrary.arbitrary
 // fail on them :)
 
 import stream00._    // uncomment to test the book solution
-// import stream01._ // uncomment to test the broken headOption implementation
-// import stream02._ // uncomment to test another version that breaks headOption
+//import stream01._ // uncomment to test the broken headOption implementation
+//import stream02._ // uncomment to test another version that breaks headOption
 
 class StreamSpecAhaqSdeh extends FlatSpec with Checkers {
 
@@ -53,6 +53,36 @@ class StreamSpecAhaqSdeh extends FlatSpec with Checkers {
 
   }
 
+  // This returns the head of an unlimited stream, and since we don't crash
+  // with a memory exception, we must have asserted that the tail is not run
+  it should "return the head of the stream, and make sure execution stops (03)" in {
+    def testStream:Stream[Int] = Stream.cons(0, testStream)
+    assert(testStream.headOption == Some(0))
+  }
+
   // --------------------------------------------------------------------------
+
+  behavior of "take"
+
+  it should "not force any heads nor any tails of the Stream it manipulates (01)" in {
+    var tester = 0
+    def testStream:Stream[Int] = {
+      tester = tester + 1
+      Stream.cons(0, testStream)
+    }
+    testStream.take(Integer.MAX_VALUE)
+    assert(tester == 1)
+  }
+
+  it should "not force (n+1)st head (02)" in {
+    def testFunc [A](stream :Stream[A]): Unit = {
+      var tester = 0
+
+    }
+    ("singleton" |:
+      Prop.forAll { (s :Stream[Int]) =>  Stream.empty == Stream.) } ) &&
+    ("finite stream" |:
+      Prop.forAll { (s :Stream[Int]) => s.take(42)})
+  }
 
 }
