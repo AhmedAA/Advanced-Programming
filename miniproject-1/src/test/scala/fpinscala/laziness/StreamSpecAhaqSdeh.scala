@@ -64,25 +64,63 @@ class StreamSpecAhaqSdeh extends FlatSpec with Checkers {
 
   behavior of "take"
 
-  it should "not force any heads nor any tails of the Stream it manipulates (01)" in {
-    var tester = 0
-    def testStream:Stream[Int] = {
-      tester = tester + 1
-      Stream.cons(0, testStream)
-    }
-    testStream.take(Integer.MAX_VALUE)
-    assert(tester == 1)
+  //TODO Something is wrong with head
+  it should "not force any heads nor any tails of the Stream it manipulates & not force (n+1)st head (01+02)" in check {
+    Prop.forAll { (n :Int) => {
+      var tester = 0
+      def testStream:Stream[Int] = {
+        tester = tester + 1
+        Stream.cons(0, testStream)
+      }
+
+      testStream.take(n)
+      tester == 1
+    }}
   }
 
-  it should "not force (n+1)st head (02)" in {
-    def testFunc [A](stream :Stream[A]): Unit = {
-      var tester = 0
-
-    }
+  //We put 20 as a hardcoded number inorder to avoid OutOfMemory Exceptions.
+  it should "hold that s.take(n).take(n) == s.take(n) for any Stream s and any n (idempotency)" in check {
+    // the implict makes the generator available in the context
+    implicit def arbIntStream = Arbitrary[Stream[Int]] (genNonEmptyStream[Int])
+    ("empty" |:
+      Prop.forAll { (n :Int) => empty.take(n).take(n) == empty.take(n) } ) &&
     ("singleton" |:
-      Prop.forAll { (s :Stream[Int]) =>  Stream.empty == Stream.) } ) &&
-    ("finite stream" |:
-      Prop.forAll { (s :Stream[Int]) => s.take(42)})
+      Prop.forAll { (n :Int) => cons (n,empty).take(n).take(n).headOption == cons(n,empty).take(n).headOption } ) &&
+    ("random" |:
+      Prop.forAll {(s :Stream[Int]) => s.take(20).take(20).toList.zip(s.take(20).toList).forall{ case(x,y) => x == y }})
+  }
+
+  // --------------------------------------------------------------------------
+
+  behavior of "drop"
+
+
+  //We put 20 as a hardcoded number inorder to avoid OutOfMemory Exceptions.
+  //We have determined that this law will only hold if neither n nor m are negative numbers.
+  it should "hold that s.drop(n).drop(m) == s.drop(n+m) for any n, m (additivity)" in check {
+    // the implict makes the generator available in the context
+    implicit def arbIntStream = Arbitrary[Stream[Int]] (genNonEmptyStream[Int])
+    Prop.forAll { (n :Int, m: Int, s:Stream[Int]) => {
+      if (n >= 0 && m >= 0)
+        s.drop(n).drop(m).take(20).toList.zip(s.drop(n+m).take(20).toList).forall{ case(x,y) => x == y }
+      else
+        true
+    }}
+  }
+
+  //TODO Something is wrong with head
+  it should "hold that s.drop(n) does not force any of the dropped elements heads" in check {
+    Prop.forAll { (n :Int) => {
+      var tester = 0
+      def testStream:Stream[Int] = {
+        tester = tester + 1
+        Stream.cons(0, testStream)
+      }
+
+      testStream.drop(50)
+      println(tester) //TODO Fails with 51 should actually not happend right????
+      tester == 1
+    }}
   }
 
 }
