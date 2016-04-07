@@ -1,6 +1,7 @@
 // Advanced Programming 2015
 // Andrzej Wasowski, IT University of Copenhagen
 package fpinscala.monads
+import scala.collection.immutable.Stream.Empty
 import scala.language.higherKinds
 
 trait Functor[F[_]] {
@@ -44,7 +45,7 @@ trait Monad[F[_]] {
 
   // Exercise 11.3
 
-  // def sequence[A] (lfa: List[F[A]]): F[List[A]] =
+  def sequence[A] (lfa: List[F[A]]): F[List[A]] = lfa.foldRight(unit(List[A]()))((ma, mla) => map2(ma, mla)(_ :: _))
 
   // traverse seems to simply sequence results of mapping.  I do not think that
   // it appeared in our part. You can uncomment it once you have sequence.
@@ -52,7 +53,7 @@ trait Monad[F[_]] {
 
   // Exercise 11.4
 
-  // def replicateM[A] (n: Int, ma: F[A]): F[List[A]] =
+  def replicateM[A] (n: Int, ma: F[A]): F[List[A]] = sequence(List.fill(n)(ma))
 
   def join[A] (mma: F[F[A]]): F[A] = flatMap (mma) (ma => ma)
 
@@ -70,10 +71,19 @@ object Monad {
 
   // Exercise 11.1
 
-  // val optionMonad =
+  val optionMonad: Monad[Option] = new Monad[Option] {
+    def unit[A](a: => A): Option[A] = Option(a)
+    def flatMap[A, B](ma: Option[A])(f: (A) => Option[B]): Option[B] = ma.flatMap(f)
+  }
 
-  // val streamMonad =
+  val streamMonad: Monad[Stream] = new Monad[Stream] {
+    def unit[A](a: => A): Stream[A] = Stream.cons(a, Empty)
+    def flatMap[A, B](ma: Stream[A])(f: (A) => Stream[B]): Stream[B] = ma.flatMap(f)
+  }
 
-  // val listMonad =
+  val listMonad: Monad[List] = new Monad[List] {
+    def unit[A](a: => A): List[A] = List(a)
+    def flatMap[A, B](ma: List[A])(f: (A) => List[B]): List[B] = ma.flatMap(f)
+  }
 
 }
