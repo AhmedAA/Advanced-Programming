@@ -64,17 +64,11 @@ class StreamSpecAhaqSdeh extends FlatSpec with Checkers {
 
   behavior of "take"
 
-  //TODO Something is wrong with head
   it should "not force any heads nor any tails of the Stream it manipulates & not force (n+1)st head (01+02)" in check {
     Prop.forAll { (n :Int) => {
-      var tester = 0
-      def testStream:Stream[Int] = {
-        tester = tester + 1
-        Stream.cons(0, testStream)
-      }
-
+      def testStream:Stream[Int] = cons(throw new AssertionError, throw new AssertionError)
       testStream.take(n)
-      tester == 1
+      true
     }}
   }
 
@@ -108,19 +102,73 @@ class StreamSpecAhaqSdeh extends FlatSpec with Checkers {
     }}
   }
 
-  //TODO Something is wrong with head
+  //We apply modulo 100 to prevent negative or too large inputs to drop, we expect that drop must never evaluate head
+  //Our test is expected to fail if a call to drop is not lazy.
   it should "hold that s.drop(n) does not force any of the dropped elements heads" in check {
     Prop.forAll { (n :Int) => {
-      var tester = 0
-      def testStream:Stream[Int] = {
-        tester = tester + 1
-        Stream.cons(0, testStream)
-      }
-
-      testStream.drop(50)
-      println(tester) //TODO Fails with 51 should actually not happend right????
-      tester == 1
+      def testStream:Stream[Int] = cons(throw new AssertionError(), testStream)
+      testStream.drop(n%100)
+      true
     }}
+  }
+
+  // --------------------------------------------------------------------------
+
+  behavior of "map"
+
+  //We used 100 as a limit for take inorder to avoid out of memory when doing the comparison
+  it should "hold that x.map(id) == x" in check {
+    // the implict makes the generator available in the context
+    implicit def arbIntStream = Arbitrary[Stream[Int]] (genNonEmptyStream[Int])
+    Prop.forAll { (s:Stream[Int]) => s.map(x=>x).take(100).toList.zip(s.take(100).toList).forall{ case(x,y) => x == y }}
+  }
+
+  //Our test will crash on infinit stream
+  it should "hold that map terminates on infinite streams" in {
+    def teststream:Stream[Int] = cons(0, teststream)
+    teststream.map(x => x%2)
+  }
+
+  // --------------------------------------------------------------------------
+
+  behavior of "append"
+
+  it should "not force tail or head on the stream that is appended to" in {
+    def infinite:Stream[Int] = cons(throw new AssertionError, throw new AssertionError )
+    implicit def arbIntStream = Arbitrary[Stream[Int]] (genNonEmptyStream[Int])
+    Prop.forAll {
+      (s1:Stream[Int]) => {infinite.append(s1); true}
+    }
+  }
+
+  it should "not force tail or head on the stream that is appended" in {
+    def infinite:Stream[Int] = cons(throw new AssertionError, throw new AssertionError )
+    implicit def arbIntStream = Arbitrary[Stream[Int]] (genNonEmptyStream[Int])
+    Prop.forAll {
+      (s1:Stream[Int]) => {s1.append(infinite); true}
+    }
+  }
+
+  it should "should terminate on any finite stream" in check {
+    implicit def arbIntStream = Arbitrary[Stream[Int]] (genNonEmptyStream[Int])
+    Prop.forAll {
+      (s1:Stream[Int], s2:Stream[Int]) => {s1.append(s2); true }
+    }
+  }
+
+  it should "should terminate on infinite streams" in {
+    def teststream:Stream[Int] = cons(0, teststream)
+    teststream.append(teststream)
+  }
+
+  //We used 50 and 100 as a limit for take inorder to avoid out of memory when doing the comparison
+  it should "hold that the appended stream is appended at the end" in check {
+    implicit def arbIntStream = Arbitrary[Stream[Int]] (genNonEmptyStream[Int])
+    Prop.forAll {
+      (s1:Stream[Int], s2:Stream[Int]) =>
+        s1.take(50).append(s2.take(50)).drop(s1.take(50).toList.length).toList.zip(s2.take(50).toList)
+          .forall{ case(x,y) => x == y }
+    }
   }
 
 }
