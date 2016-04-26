@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/root-100-finger-trees.iml" filepath="$PROJECT_DIR$/.idea/modules/root-100-finger-trees.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/root-100-finger-trees-build.iml" filepath="$PROJECT_DIR$/.idea/modules/root-100-finger-trees-build.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/root-100.iml" filepath="$PROJECT_DIR$/.idea/modules/root-100.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/root-100-build.iml" filepath="$PROJECT_DIR$/.idea/modules/root-100-build.iml" />
     </modules>
   </component>
 </project>
