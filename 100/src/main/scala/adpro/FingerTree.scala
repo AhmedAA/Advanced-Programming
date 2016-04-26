@@ -172,6 +172,8 @@ object data {
     }
 
     def reduceL[A,Z] (opl: (Z,A) => Z) (z: Z, t: FingerTree[A]) :Z = t match {
+      case x:Empty => z
+      case Single(x) => opl(z,x)
       case Deep(pr, m, sf) =>
         Digit.reduceL(opl)(FingerTree.reduceL(Node.reduceL(opl) _)(Digit.reduceL(opl)(z,pr),m),sf)
     }
@@ -179,10 +181,17 @@ object data {
     // todo page 5 bottom (the left triangle); Actually we could use the left
     // triangle in Scala but I am somewhat old fashioned ...
 
-    // def addL[A] ... = ...
+    def addL[A](ft:FingerTree[A], a:A):FingerTree[A] = ft match {
+      case x:Empty => Single(a)
+      case Single(b) => Deep(Digit(b), Empty(), Digit(a))
+      case Deep(pr, m, Digit(e, d, c, b)) => Deep(pr, (addL(m, Node3(e, d, c))), Digit(b,a))
+    }
 
-    // def addR[A] ... = ...
-
+    def addR[A](a:A, ft:FingerTree[A]):FingerTree[A] = ft match {
+      case x:Empty => Single(a)
+      case Single(b) => Deep(Digit(a), Empty(), Digit(b))
+      case Deep(Digit(e, d, c, b), m, sf) => Deep(Digit(a,b), (addR(Node3(c, d, e), m)), sf)
+    }
     // todo page 6
     //
     // This is a direct translation of view to Scala. You can replace it later
