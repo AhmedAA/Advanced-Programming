@@ -38,8 +38,7 @@ object data {
     // def toTree[A] (fa :F[A]) :FingerTree[A] = ...
   }
 
-  // Types for Finger trees after Hinze and Pattersoni (todo page 4)
-  type FingerTree[A] = Empty
+  // Types for Finger trees after Hinze and Pattersoni (page 4)
 
   type Digit[A] = List[A]
 
@@ -126,8 +125,8 @@ object data {
 
     // todo page 3, top
     //
-    def reduceR[A,Z] (opr: (A,Z) => Z) (d: Digit[A], z: Z) :Z = opr(d.head, z)
-    def reduceL[A,Z] (opl: (Z,A) => Z) (z: Z, d: Digit[A]) :Z = opl(z, d.head)
+    def reduceR[A,Z] (opr: (A,Z) => Z) (d: Digit[A], z: Z) :Z = d.foldRight(z)(opr)
+    def reduceL[A,Z] (opl: (Z,A) => Z) (z: Z, d: Digit[A]) :Z = d.foldLeft(z)(opl)
 
     // Digit inherits toTree from Reduce[Digit] that we will also apply to other
     // lists, but this object is a convenient place to put it (even if not all
@@ -166,10 +165,16 @@ object data {
 
     // todo page 5
     def reduceR[A,Z] (opr: (A,Z) => Z) (t: FingerTree[A], z: Z) :Z = t match {
-      case Empty
+      case x:Empty => z
+      case Single(x) => opr(x,z)
+      case Deep(pr:Digit, m:FingerTree, sf:Digit) =>
+        Digit.reduceR(opr)(pr, FingerTree.reduceR(Node.reduceR(opr) _)(m, Digit.reduceR(opr)(sf, z)))
     }
 
-    // def reduceL[A,Z] (opl: (Z,A) => Z) (z: Z, t: FingerTree[A]) :Z = ...
+    def reduceL[A,Z] (opl: (Z,A) => Z) (z: Z, t: FingerTree[A]) :Z = t match {
+      case Deep(pr, m, sf) =>
+        Digit.reduceL(opl)(FingerTree.reduceL(Node.reduceL(opl) _)(Digit.reduceL(opl)(z,pr),m),sf)
+    }
 
     // todo page 5 bottom (the left triangle); Actually we could use the left
     // triangle in Scala but I am somewhat old fashioned ...
