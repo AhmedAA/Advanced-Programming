@@ -35,17 +35,18 @@ object  MonadSpec extends Properties("Monad[F[_]] laws..") {
     associative[A,F] (m) && identity[A,F] (m)
 
   // uncomment when you have optionMonad
-  // property ("of optionMonad") = monad[Int,Option] (optionMonad)
+  property ("of optionMonad") = monad[Int,Option] (optionMonad)
 
   // Exercise 17
 
-  // property ...
-  // property ...
-  // property ...
+  property ("of streamMonad") = monad[Int, Stream] (streamMonad)
+  property ("of listMonad") = monad[Int, List] (listMonad)
+  property ("of string streamMonad") = monad[String, Stream] (streamMonad)
+  property ("of string listMonad") = monad[String, List] (listMonad)
 
   // Exercise 19
 
-  // def kleisliAssociative[A,B,C,D,F[_]] ...
+  //def kleisliAssociative[A,B,C,D,F[_]] =
   // def kleisliIdentity[A,B,F[_]] ...
   // def kleisliMonad[A,B,C,D,F[_]] ...
 

@@ -59,12 +59,13 @@ trait Monad[F[_]] {
 
   // Exercise 11.7
 
-  // def compose[A,B,C] (f: A => F[B], g: B => F[C]): A => F[C] =
+  def compose[A,B,C] (f: A => F[B], g: B => F[C]): A => F[C] =
+    a => flatMap(f(a))(g)
 
   // Exercise 11.8
 
-  // def flatMap_compose[A,B] (ma: F[A]) (f: A => F[B]) :F[B] =
-
+  def flatMap_compose[A,B] (ma: F[A]) (f: A => F[B]) :F[B] =
+    compose((_:Unit) => ma, f)(())
 }
 
 object Monad {

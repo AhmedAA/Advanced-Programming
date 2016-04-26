@@ -28,17 +28,17 @@ object MonoidSpec extends Properties("Monoids..") {
   // Exercise 4: test listMonoid, intAddition, intMultiplication, booleanOr,
   // booleanAnd and optionMonoid.
 
-  //TODO FIX: property ("listMonoid is a monoid") = monoid(listMonoid) //Error:(31, 47) could not find implicit value for evidence parameter of type org.scalacheck.Arbitrary[List[Nothing]]
+  property ("listMonoid is a monoid") = monoid(listMonoid[Int])
   property ("intAdditionMonoid is a monoid") = monoid(intAddition)
   property ("intMultiplication is a monoid") = monoid(intMultiplication)
   property ("booleanOr is a monoid") = monoid(booleanOr)
   property ("booleanAnd is a monoid") = monoid(booleanAnd)
-  //TODO FIX property ("optionMonoid is a monoid") = monoid(optionMonoid) //Error: could not find implicit value for evidence parameter of type ....
+  property ("optionMonoid is a monoid") = monoid(optionMonoid[Int])
 
 
   // Exercise 7
 
-  // TODO def homomorphism[A :Arbitrary,B :Arbitrary](ma: Monoid[A]) (f: A => B) (mb: Monoid[B]) =
+  // def homomorphism[A :Arbitrary,B :Arbitrary](ma: Monoid[A]) (f: A => B) (mb: Monoid[B]) =
 
   // def isomorphism[A :Arbitrary, B :Arbitrary] ...
 
