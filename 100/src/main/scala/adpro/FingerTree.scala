@@ -1,4 +1,6 @@
 package adpro
+import java.util.NoSuchElementException
+
 import scala.language.higherKinds
 
 // The implementation is based on Section 3 of the paper.
@@ -60,8 +62,8 @@ object data {
     // the operations both as methods and functions.
     // Uncomment them once you have implemented the corresponding functions.
 
-    def addL[B >:A] (b: B) :FingerTree[B] = FingerTree.addL(b,this)
-    def addR[B >:A] (b: B) :FingerTree[B] = FingerTree.addR(this,b)
+    def addL[B >:A] (b: B) :FingerTree[B] = FingerTree.addL (b,this)
+    def addR[B >:A] (b: B) :FingerTree[B] = FingerTree.addR (this,b)
     def toList :List[A] = FingerTree.toList (this)
 
     def headL :A = FingerTree.headL (this)
@@ -169,7 +171,7 @@ object data {
     def reduceR[A,Z] (opr: (A,Z) => Z) (t: FingerTree[A], z: Z) :Z = t match {
       case x:Empty => z
       case Single(x) => opr(x,z)
-      case Deep(pr:Digit, m:FingerTree, sf:Digit) =>
+      case Deep(pr, m, sf) =>
         Digit.reduceR(opr)(pr, FingerTree.reduceR(Node.reduceR(opr) _)(m, Digit.reduceR(opr)(sf, z)))
     }
 
@@ -217,10 +219,12 @@ object data {
     //
     // A smart constructor that allows pr to be empty
     def deepL[A] (pr: Digit[A], m: FingerTree[Node[A]], sf: Digit[A]) :FingerTree[A] = pr match {
-      case Nil => m match {
+      //pr empty
+      case Nil => viewL(m) match {
         case NilTree() => Digit.toTree(sf)
-        case ConsL(a:Digit[A],m2:FingerTree[Node[A]]) => Deep(a, m2, sf)
+        case ConsL(a,m2) => Deep(Node.toList(a), m2, sf)
       }
+      //pr not empty
       case _ => Deep(pr, m, sf)
     }
 
@@ -229,11 +233,9 @@ object data {
     // todo page 7
 
     def headL[A](ft: FingerTree[A]):A = viewL(ft) match {
-      case NilTree() => _
       case ConsL(h,tl) => h
     }
     def tailL[A] (ft: FingerTree[A]):FingerTree[A] = viewL(ft) match {
-      case NilTree() => _
       case ConsL(h,tl) => tl
     }
     // def headR[A] ... = ...

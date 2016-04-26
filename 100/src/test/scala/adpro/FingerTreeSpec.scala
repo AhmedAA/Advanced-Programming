@@ -74,15 +74,15 @@ class FingerTreeSpecWasowski extends FlatSpec with Checkers {
   behavior of "addL"
 
   it should "produce a queue containing the inserted element" in {
-    // assert(Empty().addL(42).toList == List(42))
+    assert(Empty().addL(42).toList == List(42))
   }
 
-  // it should "produce a queue containing the inserted elements" in check {
-    // forAll (Gen.listOfN(100, Gen.choose[Int](0,1000))) {
-    //   (l :List[Int]) =>
-    //     l.foldRight[FingerTree[Int]] (Empty()) (FingerTree.addL).toList == l
-    // }
-  // }
+  /*it should "produce a queue containing the inserted elements" in check {
+    forAll (Gen.listOfN(100, Gen.choose[Int](0,1000))) {
+      (l :List[Int]) =>
+        l.foldRight[FingerTree[Int]] (Empty()) (FingerTree.addL).toList == l
+    }
+  }*/
 
   behavior of "addR"
 
