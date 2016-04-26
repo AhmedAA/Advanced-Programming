@@ -8,7 +8,7 @@ import scala.language.higherKinds
 // it is possibly lazy, like in the paper of Hinze and Paterson.  The obvious
 // choice is to make values of elements stored in the queue lazy.  Then there is
 // also a discussion of possible suspension of the middle element of the tree on
-// todo page 7.
+// page 7.
 
 // Complete the implementation of Finger Trees below.  Incomplete
 // places are marked ...
@@ -29,13 +29,15 @@ object data {
     def reduceR[A,B] (opr: (A,B) => B) (fa: F[A], b: B) :B
     def reduceL[A,B] (opl: (B,A) => B) (b: B, fa: F[A]) :B
 
-    // todo page 3
+    // page 3
 
     def toList[A] (fa: F[A]) :List[A] = reduceR((a:A, b:List[A]) => a::b)(fa, Nil:List[A])
 
-    // todo page 6
-    //
-    // def toTree[A] (fa :F[A]) :FingerTree[A] = ...
+    // page 6
+
+    def toTree[A] (fa :F[A]) :FingerTree[A] =
+      reduceR((a:A, b:FingerTree[A]) => FingerTree.addR(a,b))(fa, Empty():FingerTree[A])
+
   }
 
   // Types for Finger trees after Hinze and Pattersoni (page 4)
@@ -123,7 +125,7 @@ object data {
   //
   object Digit { // extends Reduce[Digit] { // uncomment once the interfaces are provided
 
-    // todo page 3, top
+    // page 3, top
     //
     def reduceR[A,Z] (opr: (A,Z) => Z) (d: Digit[A], z: Z) :Z = d.foldRight(z)(opr)
     def reduceL[A,Z] (opl: (Z,A) => Z) (z: Z, d: Digit[A]) :Z = d.foldLeft(z)(opl)
@@ -145,7 +147,7 @@ object data {
 
   object Node extends Reduce[Node] {
 
-    // todo page 5, top
+    // page 5, top
     def reduceR[A,Z] (opr: (A,Z) => Z) (n :Node[A], z: Z) :Z = n match {
       case Node2(a,b) => opr(a,opr(b,z))
       case Node3(a,b,c) => opr(a,opr(b,opr(c,z)))
@@ -163,7 +165,7 @@ object data {
 
   object FingerTree { // extends Reduce[FingerTree] { // uncomment once the interface is implemented
 
-    // todo page 5
+    // page 5
     def reduceR[A,Z] (opr: (A,Z) => Z) (t: FingerTree[A], z: Z) :Z = t match {
       case x:Empty => z
       case Single(x) => opr(x,z)
@@ -178,7 +180,7 @@ object data {
         Digit.reduceL(opl)(FingerTree.reduceL(Node.reduceL(opl) _)(Digit.reduceL(opl)(z,pr),m),sf)
     }
 
-    // todo page 5 bottom (the left triangle); Actually we could use the left
+    // todo 5 bottom (the left triangle); Actually we could use the left
     // triangle in Scala but I am somewhat old fashioned ...
 
     def addL[A](ft:FingerTree[A], a:A):FingerTree[A] = ft match {
