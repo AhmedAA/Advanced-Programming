@@ -38,7 +38,7 @@ object data {
     // page 6
 
     def toTree[A] (fa :F[A]) :FingerTree[A] =
-      reduceR((a:A, b:FingerTree[A]) => FingerTree.addR(a,b))(fa, Empty():FingerTree[A])
+      reduceR((a:A, b:FingerTree[A]) => FingerTree.addR(b,a))(fa, Empty():FingerTree[A])
 
   }
 
@@ -75,15 +75,18 @@ object data {
     // implement it differently; If you want to follow the paper closely move them to
     // FingerTree object and delegate the methods, so my tests still work.
     //
-    // def empty :Boolean = ...
-    // def nonEmpty :Boolean = ...
+    def empty :Boolean = FingerTree.viewL(this) match {
+      case NilTree() => true
+      case _ => false
+    }
+    def nonEmpty :Boolean = !empty
   }
   case class Empty () extends FingerTree[Nothing] {
 
     // todo page 7
     //
-    // override def empty =  ...
-    // override def nonEmpty = ...
+    override def empty = true
+    override def nonEmpty = false
   }
   case class Single[A] (data: A) extends FingerTree[A]
   // paramter names: pr - prefix, m - middle, sf - suffix
@@ -185,20 +188,20 @@ object data {
     // 5 bottom (the left triangle); Actually we could use the left
     // triangle in Scala but I am somewhat old fashioned ...
 
-    def addL[A](ft:FingerTree[A], a:A):FingerTree[A] = ft match {
+    def addL[A](a:A, ft:FingerTree[A]):FingerTree[A] = ft match {
       case x:Empty => Single(a)
       case Single(b) => Deep(Digit(b), Empty(), Digit(a))
-      case Deep(pr, m, Digit(e, d, c, b)) => Deep(pr, (addL(m, Node3(e, d, c))), Digit(b,a))
+      case Deep(pr, m, Digit(e, d, c, b)) => Deep(pr, (addL(Node3(e, d, c), m)), Digit(b,a))
       case Deep(pr, m, sf) => Deep(pr, m, sf :+ a)
     }
 
-    def addR[A](a:A, ft:FingerTree[A]):FingerTree[A] = ft match {
+    def addR[A](ft:FingerTree[A], a:A):FingerTree[A] = ft match {
       case x:Empty => Single(a)
       case Single(b) => Deep(Digit(a), Empty(), Digit(b))
-      case Deep(Digit(e, d, c, b), m, sf) => Deep(Digit(a,b), (addR(Node3(c, d, e), m)), sf)
+      case Deep(Digit(e, d, c, b), m, sf) => Deep(Digit(a,b), (addR(m, Node3(c, d, e))), sf)
       case Deep(pr, m, sf) => Deep(pr :+ a, m, sf)
     }
-    // todo page 6
+    // page 6
     //
     // This is a direct translation of view to Scala. You can replace it later
     // with extractors in Scala, see above objects NilTree and ConsL (this is an

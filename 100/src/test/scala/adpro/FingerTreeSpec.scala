@@ -77,12 +77,12 @@ class FingerTreeSpecWasowski extends FlatSpec with Checkers {
     assert(Empty().addL(42).toList == List(42))
   }
 
-  /*it should "produce a queue containing the inserted elements" in check {
+  it should "produce a queue containing the inserted elements" in check {
     forAll (Gen.listOfN(100, Gen.choose[Int](0,1000))) {
       (l :List[Int]) =>
         l.foldRight[FingerTree[Int]] (Empty()) (FingerTree.addL).toList == l
     }
-  }*/
+  }
 
   behavior of "addR"
 
@@ -90,28 +90,28 @@ class FingerTreeSpecWasowski extends FlatSpec with Checkers {
 
   behavior of "toTree"
 
-  // it should "be an identitity on trees" in check {
-    // forAll (fingerTreeOfN(100, Gen.choose[Int](0,1000))) {
-    //   (t :FingerTree[Int]) => toTree (t) == t
-    // }
-  // }
+//  it should "be an identitity on trees" in check {
+//     forAll (fingerTreeOfN(100, Gen.choose[Int](0,1000))) {
+//       (t :FingerTree[Int]) => toTree (t) == t
+//    }
+//  }
 
   behavior of "left views (extractors)"
 
   // the tests can be easily rewritten to paper-style views
 
   it should "be NilTree on Empty" in {
-    // Empty() match {
-    //   case NilTree () => assert(Empty().empty)
-    //   case _ => fail()
-    // }
+     Empty() match {
+       case NilTree () => assert(Empty().empty)
+       case _ => fail()
+     }
   }
 
   it should "be ConsL(_,Nil) on Single" in {
-    // Single(42) match {
-    //   case ConsL(_,NilTree()) => assert(Single(42).nonEmpty)
-    //   case _ => fail()
-    // }
+     Single(42) match {
+       case ConsL(_,NilTree()) => assert(Single(42).nonEmpty)
+       case _ => fail()
+     }
   }
 
   // it should "be ConsL(_,Consl(_,_)) on any tree larger than 3" in check {
