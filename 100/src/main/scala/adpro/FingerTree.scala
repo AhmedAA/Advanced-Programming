@@ -8,7 +8,7 @@ import scala.language.higherKinds
 // it is possibly lazy, like in the paper of Hinze and Paterson.  The obvious
 // choice is to make values of elements stored in the queue lazy.  Then there is
 // also a discussion of possible suspension of the middle element of the tree on
-// page 7.
+// todo page 7.
 
 // Complete the implementation of Finger Trees below.  Incomplete
 // places are marked ...
@@ -29,16 +29,17 @@ object data {
     def reduceR[A,B] (opr: (A,B) => B) (fa: F[A], b: B) :B
     def reduceL[A,B] (opl: (B,A) => B) (b: B, fa: F[A]) :B
 
-    // page 3
+    // todo page 3
 
-    // def toList[A] (fa: F[A]) :List[A] = ...
+    def toList[A] (fa: F[A]) :List[A] = reduceR((a:A, b:List[A]) => a::b)(fa, Nil:List[A])
 
-    // page 6
+    // todo page 6
     //
     // def toTree[A] (fa :F[A]) :FingerTree[A] = ...
   }
 
-  // Types for Finger trees after Hinze and Pattersoni (page 4)
+  // Types for Finger trees after Hinze and Pattersoni (todo page 4)
+  type FingerTree[A] = Empty
 
   type Digit[A] = List[A]
 
@@ -67,7 +68,7 @@ object data {
     // def headR :A = FingerTree.headR (this)
     // def tailR :FingerTree[A] = FingerTree.tailR (this)
 
-    // page 7 (but this version uses polymorphis for efficiency, so we can
+    // todo page 7 (but this version uses polymorphis for efficiency, so we can
     // implement it differently; If you want to follow the paper closely move them to
     // FingerTree object and delegate the methods, so my tests still work.
     //
@@ -76,7 +77,7 @@ object data {
   }
   case class Empty () extends FingerTree[Nothing] {
 
-    // page 7
+    // todo page 7
     //
     // override def empty =  ...
     // override def nonEmpty = ...
@@ -85,7 +86,7 @@ object data {
   // paramter names: pr - prefix, m - middle, sf - suffix
   case class Deep[A] (pr: Digit[A], m: FingerTree[Node[A]], sf: Digit[A]) extends FingerTree[A]
 
-  // page 6
+  // todo page 6
   //
   // Types of views on trees
   // The types are provided for educational purposes.  I do not use the view
@@ -123,10 +124,10 @@ object data {
   //
   object Digit { // extends Reduce[Digit] { // uncomment once the interfaces are provided
 
-    // page 3, top
+    // todo page 3, top
     //
-    // def reduceR[A,Z] (opr: (A,Z) => Z) (d: Digit[A], z: Z) :Z = ...
-    // def reduceL[A,Z] (opl: (Z,A) => Z) (z: Z, d: Digit[A]) :Z = ...
+    def reduceR[A,Z] (opr: (A,Z) => Z) (d: Digit[A], z: Z) :Z = opr(d.head, z)
+    def reduceL[A,Z] (opl: (Z,A) => Z) (z: Z, d: Digit[A]) :Z = opl(z, d.head)
 
     // Digit inherits toTree from Reduce[Digit] that we will also apply to other
     // lists, but this object is a convenient place to put it (even if not all
@@ -143,12 +144,19 @@ object data {
   }
 
 
-  object Node // extends Reduce[Node] {
+  object Node extends Reduce[Node] {
 
-    // page 5, top
-    // def reduceR[A,Z] (opr: (A,Z) => Z) (n :Node[A], z: Z) :Z = ...
-    // def reduceL[A,Z] (opl: (Z,A) => Z) (z: Z, n :Node[A]) :Z = ...
-  // }
+    // todo page 5, top
+    def reduceR[A,Z] (opr: (A,Z) => Z) (n :Node[A], z: Z) :Z = n match {
+      case Node2(a,b) => opr(a,opr(b,z))
+      case Node3(a,b,c) => opr(a,opr(b,opr(c,z)))
+    }
+
+    def reduceL[A,Z] (opl: (Z,A) => Z) (z: Z, n :Node[A]) :Z = n match {
+      case Node2(a,b) => opl(opl(z,b), a)
+      case Node3(a,b,c) => opl(opl(opl(z,c), b), a)
+    }
+  }
 
 
 
@@ -156,19 +164,21 @@ object data {
 
   object FingerTree { // extends Reduce[FingerTree] { // uncomment once the interface is implemented
 
-    // page 5
-    // def reduceR[A,Z] (opr: (A,Z) => Z) (t: FingerTree[A], z: Z) :Z = ...
+    // todo page 5
+    def reduceR[A,Z] (opr: (A,Z) => Z) (t: FingerTree[A], z: Z) :Z = t match {
+      case Empty
+    }
 
     // def reduceL[A,Z] (opl: (Z,A) => Z) (z: Z, t: FingerTree[A]) :Z = ...
 
-    // page 5 bottom (the left triangle); Actually we could use the left
+    // todo page 5 bottom (the left triangle); Actually we could use the left
     // triangle in Scala but I am somewhat old fashioned ...
 
     // def addL[A] ... = ...
 
     // def addR[A] ... = ...
 
-    // page 6
+    // todo page 6
     //
     // This is a direct translation of view to Scala. You can replace it later
     // with extractors in Scala, see above objects NilTree and ConsL (this is an
@@ -179,14 +189,14 @@ object data {
     //
     // def viewL[A] (t: FingerTree[A]) :ViewL[A] = ...
 
-    // page 6
+    // todo page 6
     //
     // A smart constructor that allows pr to be empty
     // def deepL[A] (pr: Digit[A], m: FingerTree[Node[A]], sf: Digit[A]) :FingerTree[A] =
 
     // def deepR[A] ... = ...
 
-    // page 7
+    // todo page 7
 
     // def headL[A] ... = ...
     // def tailL[A] ... = ...
