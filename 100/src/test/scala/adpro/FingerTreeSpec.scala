@@ -107,12 +107,12 @@ class FingerTreeSpecWasowski extends FlatSpec with Checkers {
      }
   }
 
-  it should "be ConsL(_,Nil) on Single" in {
-     Single(42) match {
-       case ConsL(_,NilTree()) => assert(Single(42).nonEmpty)
-       case _ => fail()
-     }
-  }
+//  it should "be ConsL(_,Nil) on Single" in {
+//     Single(42) match {
+//       case ConsL(_,NilTree()) => assert(Single(42).nonEmpty)
+//       case _ => fail()
+//     }
+//  }
 
   // it should "be ConsL(_,Consl(_,_)) on any tree larger than 3" in check {
     // val ft3plus = Gen.choose(3,100) flatMap { fingerTreeOfN(_,arbitrary[Int]) }
@@ -123,14 +123,14 @@ class FingerTreeSpecWasowski extends FlatSpec with Checkers {
     // }
   // }
 
-  // it should "have the right prefix on any tree larger than 3" in check {
-    // val list3plus = Gen.choose(3,100) flatMap { Gen.listOfN(_,arbitrary[Int]) }
-    // forAll (list3plus) { (l: List[Int]) =>
-    //   val t = Digit.toTree (l)
-    //   t.headL == l.head && t.tailL.headL == l.tail.head &&
-    //   t.tailL.tailL.headL == l.tail.tail.head
-    // }
-  // }
+   it should "have the right prefix on any tree larger than 3" in check {
+     val list3plus = Gen.choose(3,100) flatMap { Gen.listOfN(_,arbitrary[Int]) }
+     forAll (list3plus) { (l: List[Int]) =>
+       val t = Digit.toTree (l)
+       t.headL == l.head && t.tailL.headL == l.tail.head &&
+       t.tailL.tailL.headL == l.tail.tail.head
+     }
+   }
 
   behavior of "right views"
 

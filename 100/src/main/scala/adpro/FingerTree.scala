@@ -114,8 +114,8 @@ object data {
   //
   // See an example extractor implemented for Digit below (Digit.unapply)
 
-  object NilTree { // we use the same extractor for both left and right views
-    // def unapply[A] (t: FingerTree[A]) :Boolean = ...
+  object NilTree {
+    def unapply(value: Any): Boolean = true
   }
 
   object ConsL {
