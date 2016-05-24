@@ -81,12 +81,11 @@ object Q1 {
   //Starts with empty list (Nil) and None (Option)
   //The first element will match None as the option and return Nil, Some(x) - Basically the head as prev
   //The next elements will return the accumulated list appended with the current element minus previous with Some(x)
-  def listDifferentialFunFold (inList :List[Int]) :List[Int] = {
-    inList.foldLeft(Nil:List[Int], None:Option[Int]) ((z, x) => z._2 match {
-      case None => (Nil, Some(x))
-      case Some(prev) => (z._1 :+ x-prev, Some(x))
-    })._1
-  }
+  def listDifferentialFunFold (inList :List[Int]) :List[Int] =
+  inList.foldLeft(Nil:List[Int], None:Option[Int]) ((z, x) => z._2 match {
+    case None => (Nil, Some(x))
+    case Some(prev) => (z._1 :+ x-prev, Some(x))
+  })._1
 
 }
 
@@ -280,12 +279,12 @@ object Q6 {
 
   def getR[A] (t: FingerTree[A]) :Option[A] = viewR(t) match {
     case NilTree () => None
-    case ConsR (h,tl) => Some (h)
+    case ConsR (h,tr) => Some (h)
   }
 
   def putR[A] (a: A) (t :FingerTree[A]) :FingerTree[A] = viewR(t) match {
     case NilTree () => Empty().addR[A] (a)
-    case ConsR (h,tl) => tl.addR (a)
+    case ConsR (h,tr) => tr.addR (a)
   }
 
   def rightFT[A] = Optional[FingerTree[A],A] (getR) (putR)
