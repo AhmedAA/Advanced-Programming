@@ -161,7 +161,7 @@ object GenAdPro {
 
 // This is the Prop type implemented in [Chiusano, Bjarnasson 2015]
 
-object Prop {
+object PropAdPro {
 
   type TestCases = Int
   type SuccessCount = Int
@@ -177,7 +177,7 @@ object Prop {
   }
   case object Proved extends Result { def isFalsified = false }
 
-  def forAll[A](as: GenAdPro[A])(f: A => Boolean): Prop = Prop {
+  def forAll[A](as: GenAdPro[A])(f: A => Boolean): PropAdPro = PropAdPro {
     (n,rng) => as.toStream(rng).zip(Stream.from(0)).take(n).map {
       case (a,i) => try {
         if (f(a)) Passed else Falsified(a.toString, i)
@@ -191,20 +191,20 @@ object Prop {
       s"stack trace:\n ${e.getStackTrace.mkString("\n")}"
 }
 
-import Prop._
+import PropAdPro._
 
-case class Prop (run :(TestCases,RNG) => Result) {
+case class PropAdPro(run :(TestCases,RNG) => Result) {
 
   // (Exercise 9)
 
-  def && (that :Prop) :Prop = Prop {
+  def && (that :PropAdPro) :PropAdPro = PropAdPro {
     (n,rng) => run(n,rng) match {
       case Passed | Proved => that.run(n, rng)
       case x => x
     }
   }
 
-  def || (that :Prop) :Prop = Prop {
+  def || (that :PropAdPro) :PropAdPro = PropAdPro {
     (n,rng) => run(n,rng) match {
       case Falsified(msg, _) => that.run(n, rng)
       case x => x
