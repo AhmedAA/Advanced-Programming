@@ -10,7 +10,7 @@ scalacOptions += "-deprecation"
 
 scalacOptions += "-feature"
 
-libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.12.5" % "compile"
+libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.12.4" % "compile"
 
 libraryDependencies += "org.scalatest" % "scalatest_2.11" % "2.2.4" % "compile"
 
@@ -24,7 +24,7 @@ libraryDependencies ++= Seq(
   "com.github.julien-truffaut"  %%  "monocle-law"     % libraryVersion % "compile"
 )
 
-val scalazVersion = "7.1.3"
+val scalazVersion = "7.1.4"
 
 libraryDependencies ++= Seq (
   "org.scalaz" %% "scalaz-core"               % scalazVersion % "compile",
