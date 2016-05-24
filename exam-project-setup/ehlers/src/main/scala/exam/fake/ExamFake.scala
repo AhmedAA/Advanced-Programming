@@ -63,7 +63,30 @@ object Q1 {
     return result
   }
 
-  def listDifferentialFun (inList :List[Int]) :List[Int] = ??? // complete
+  //Solved using helper
+  def listDifferentialFun (inList :List[Int]) :List[Int] = {
+    if (inList.size < 1)
+      Nil
+    else {
+      def helper(first: Boolean, prev: Int, list: List[Int]): List[Int] = list match {
+        case x :: xs => if (first) helper(false, x, xs) else x - prev :: helper(false, x, xs)
+        case _ => Nil
+      }
+
+      helper(true, inList.head, inList)
+    }
+  }
+
+  //Solved using foldLeft
+  //Starts with empty list (Nil) and None (Option)
+  //The first element will match None as the option and return Nil, Some(x) - Basically the head as prev
+  //The next elements will return the accumulated list appended with the current element minus previous with Some(x)
+  def listDifferentialFunFold (inList :List[Int]) :List[Int] = {
+    inList.foldLeft(Nil:List[Int], None:Option[Int]) ((z, x) => z._2 match {
+      case None => (Nil, Some(x))
+      case Some(prev) => (z._1 :+ x-prev, Some(x))
+    })._1
+  }
 
 }
 
@@ -86,7 +109,10 @@ object Q2 {
    * characters back to a String.
    */
 
-   def onList (f: String => String): List[Char] => List[Char] = ??? // complete
+  //Returns a function that takes a list of chars X and makes string applies f and returns to list (List[Char] => f(String) => List[Char])
+  def onList (f: String => String): List[Char] => List[Char] = {
+    x:List[Char] => f(x.mkString).toList //Basically mkString does the same as x.foldRight("")((cha,s) => cha+s)
+  }
 
 }
 
@@ -110,7 +136,13 @@ object Q3 {
    * where z = M.zero and + is M.op .
    */
 
-  def foldBack[A] (l :List[A]) (implicit M :Monoid[A]) :A = ??? // complete
+  //The trick here is to identify the correct folds
+  //The first fold is the l.foldLeft(M.zero)((acc, cur) => M.op(acc,cur)) which yields (((z + x1) + x2) +x3)
+  //The second fold is the l.foldRight(FIRST_FOLD)((cur, acc) => M.op(acc, cur)) which yields (FIRST_FOLD + x3) + x2) + x1)
+  //At last the second fold is op'ed with M.zero which yields SECOND_FOLD + z
+  def foldBack[A] (l :List[A]) (implicit M :Monoid[A]) :A = {
+    M.op(l.foldRight(l.foldLeft(M.zero)((acc, cur) => M.op(acc,cur))) ((cur, acc) => M.op(acc, cur)), M.zero)
+  }
 
 }
 
@@ -144,7 +176,9 @@ object Q4 {
    * just for a type declaration.
    */
 
-   // def conditionalP ... = ??? // replace ..., leave ??? in place this time.
+  //Option is because of the possibility of the function to be undefined
+
+   def conditionalP (E1 :Event, E2 :Event): Option[Probability] = ??? // replace ..., leave ??? in place this time.
 
 }
 
@@ -167,7 +201,11 @@ object Q5 {
    * but does not require using explicit delays like Branch.
    */
 
-  def branch[A] (l : =>Tree[A], r: =>Tree[A]) :Tree[A] = ???
+  def branch[A] (l : =>Tree[A], r: =>Tree[A]) :Tree[A] = {
+    lazy val left = l
+    lazy val right = r
+    Branch(() => left, () => right)
+  }
 
 }
 
@@ -189,11 +227,12 @@ object Q6 {
 
   trait FingerTree[+A] {
     def addL[B >:A] (b: B) :FingerTree[B] = ??? // assume that this is implemented
+    def addR[B >:A] (b: B) :FingerTree[B] = ??? // Implemented for task 7
   }
   case class Empty () extends FingerTree[Nothing]
 
   sealed trait ViewL[+A]
-  case class NilTree () extends ViewL[Nothing]
+  case class NilTree () extends ViewR[Nothing] with ViewL[Nothing] // Implemented for task 7
   case class ConsL[A] (hd: A, tl: FingerTree[A]) extends ViewL[A]
 
   def viewL[A] (t: FingerTree[A]) :ViewL[A] = ??? // assume that this is defined
@@ -206,9 +245,19 @@ object Q6 {
    * Include the type of the lens (partial/total), and the put and get function.
    */
 
-  def leftFT[A] = ???
+  //This is the solution!!
 
+  def getL[A] (t: FingerTree[A]) :Option[A] = viewL(t) match {
+    case NilTree () => None
+    case ConsL (h,tl) => Some (h)
+  }
 
+  def putL[A] (a: A) (t :FingerTree[A]) :FingerTree[A] = viewL(t) match {
+    case NilTree () => Empty().addL[A] (a)
+    case ConsL (h,tl) => tl.addL (a)
+  }
+
+  def leftFT[A] = Optional[FingerTree[A],A] (getL) (putL)
 
   /**
    *  Task 7.
@@ -218,7 +267,28 @@ object Q6 {
    *  anologous functionality for the right end of the deque
    */
 
+  //A definition for viewR needs to be defined with ConsR.
+  //getR similar to getL but with ConsR. Same with putR.
+  //Lastly rightFT would need to be created with simply the L replaced
 
+  //Example implementation
+
+  sealed trait ViewR[+A]
+  case class ConsR[A] (hd: A, tr: FingerTree[A]) extends ViewR[A]
+
+  def viewR[A] (t: FingerTree[A]) :ViewR[A] = ???
+
+  def getR[A] (t: FingerTree[A]) :Option[A] = viewR(t) match {
+    case NilTree () => None
+    case ConsR (h,tl) => Some (h)
+  }
+
+  def putR[A] (a: A) (t :FingerTree[A]) :FingerTree[A] = viewR(t) match {
+    case NilTree () => Empty().addR[A] (a)
+    case ConsR (h,tl) => tl.addR (a)
+  }
+
+  def rightFT[A] = Optional[FingerTree[A],A] (getR) (putR)
 }
 
 
@@ -237,11 +307,13 @@ object Question7 {
    * Danish).
    */
 
-
+  //The Symbol => A means that elem is the type of a function that takes no parameters and returns an element of type A
+  //This is an Expression that calculates the element
+  //I would assume this is done in order to allow the filling function to fit multiple purposes.
 
 
   import adpro.state.RNG
-  import adpro.testing.GenAdPro
+  import adpro.testing.{GenAdPro => Gen}
 
   /**
    * Task 9.
@@ -255,11 +327,13 @@ object Question7 {
    * Provide an explicit type for multiplesOf10
    */
 
-  val arbitraryInt :Gen[Int] = ??? // assume that this exists.
+  val arbitraryInt :Gen[Int] = Gen(adpro.state.State(_.nextInt)) // assume that this exists.
 
-  val multiplesOf10 = ??? // complete this
+  //Correct GEN version - The idea is that division down and up will round the integer to 10 dividable
+  val multiplesOf10Gen:Gen[Int] = arbitraryInt.map(x => x / 10 * 10)
 
-
+  //Incorrect Stream version
+  val multiplesOf10:Long => Stream[Int] = (seed:Long) => arbitraryInt.toStream(seed).dropWhile(x => x%10 != 0)
 
   /**
    * Task 10.
@@ -270,16 +344,19 @@ object Question7 {
    * Provide an explicit type for multiplesOf10UpTo
    */
 
-  // def multiplesOf10UpTo ...
+  //Correct Gen version - Using modulo limits the value to max m
+  def multiplesOf10UpTo(m:Int): Gen[Int] = multiplesOf10Gen.map(x => x % m)
+
+  //Incorrect Stream version
+  //Uses multiplesOf10 but dropsWhile x < m
+  def multiplesOf10UpTo(seed:Long, m:Int): Stream[Int] = multiplesOf10(seed).dropWhile(x => x < m)
 
 }
-
-
 
 object Question8 {
 
   import adpro.state.RNG
-  import adpro.testing.GenAdPro
+  import adpro.testing.{GenAdPro => Gen}
 
   val arbitraryInt :Gen[Int] = ??? // assume that this exists.
   def listOfN[A] (n: Int, g: Gen[A]) : Gen[List[A]] = ??? // assume that this exists.
@@ -297,8 +374,13 @@ object Question8 {
    * explanation should not be long (4-5 lines will suffice).
    **/
 
-  val v1 = arbitraryInt.flatMap (n => listOfN(n, arbitraryInt))
-  //val v2 = arbitraryInt.flatMap (n => listOfN(n, arbitraryInt)).
-  //         sample.run (RNG.Simple(42))
+  val v1:Gen[List[Int]] = arbitraryInt.flatMap (n => listOfN(n, arbitraryInt))
+  val v2:(List[Int],RNG) = arbitraryInt.flatMap (n => listOfN(n, arbitraryInt)).
+           sample.run (RNG.Simple(42))
+
+  //V1 Defines a generator of type List[Int] where the generation have not been executed
+  //V2 Defines a tuple of List[Int] and RNG, that is the actual generation to be executed in V1. V2 runs the generator
+  //and thus calculates the List of integers. The calculation in v2 is based on RNG.Simple(42), V1 is not calculated and
+  //can therefore be based on whatever the coder decides later.
 
 }

@@ -74,7 +74,7 @@ case class GenAdPro[A] (sample :State[RNG,A]) {
 
   // It would be convenient to also have map (uncomment once you have unit and flatMap)
 
-  // def map[B] (f : A => B) :Gen[B] = this.flatMap (a => Gen.unit[B] (f(a)))
+  def map[B] (f : A => B) :GenAdPro[B] = this.flatMap (a => GenAdPro.unit[B] (f(a)))
 
   // Exercise 6 (Second part of Ex. 8.6)
 

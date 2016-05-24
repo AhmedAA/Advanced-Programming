@@ -13,6 +13,11 @@ trait Monoid[A] {
 
 object Monoid {
 
+  val stringMonoidZeroZParenthesis = new Monoid[String] {
+    def op(a1: String, a2: String) = "(" + a1 + " + " + a2 + ")"
+    val zero = "z"
+  }
+
   val stringMonoid = new Monoid[String] {
     def op(a1: String, a2: String) = a1 + a2
     val zero = ""
